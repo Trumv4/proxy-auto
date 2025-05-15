@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # === Cấu hình BOT TELEGRAM ===
-BOT_TOKEN="7775889436:AAEgMtP0fYHcbeeQpPl0btTaSZY6-9TWHPU"
+BOT_TOKEN="7661562599:AAG5AvXpwl87M5up34-nj9AvMiJu-jYuWlA"
 CHAT_ID="7051936083"
 
 # === Bắt đầu cài đặt SOCKS5 ===
