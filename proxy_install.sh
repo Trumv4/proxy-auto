@@ -72,15 +72,23 @@ PORT=1080
 USER=proxyuser
 PASS=proxypass
 
+# Kiểm tra tốc độ proxy
+SPEED=$(curl -x socks5h://$USER:$PASS@$IP:$PORT -o /dev/null -s -w "%{time_total}" http://ifconfig.me)
+PING_RESULT=$(ping -c 3 $IP | tail -2 | head -1 | awk -F '/' '{print $5 " ms"}')
+
 # Nội dung tin nhắn
 MSG=$(cat <<EOF
-🎯 SOCKS5 Proxy Created!
+SOCKS5 Proxy Created!
 ➡️ $IP:$PORT
-👤 $USER
-🔑 $PASS
 
-Tạo Proxy Thành Công Bot By Phạm Anh Tú
+⏱ Tốc độ phản hồi: ${SPEED}s
+📶 Ping trung bình: ${PING_RESULT}
+
+Ip:port:user:pass
 $IP:$PORT:$USER:$PASS
+
+Tạo Proxy Thành Công - Bot By Phạm Anh Tú
+Zalo : 0326615531
 EOF
 )
 
