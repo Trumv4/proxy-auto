@@ -2,7 +2,7 @@
 
 # === Cấu hình BOT TELEGRAM ===
 BOT_TOKEN="7661562599:AAG5AvXpwl87M5up34-nj9AvMiJu-jYuWlA"
-CHAT_ID="7051936083"
+CHAT_ID="-1002322055133"
 
 # === Bắt đầu cài đặt SOCKS5 ===
 if [ -f /etc/debian_version ]; then
