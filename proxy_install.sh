@@ -5,8 +5,13 @@ BOT_TOKEN="7661562599:AAG5AvXpwl87M5up34-nj9AvMiJu-jYuWlA"
 CHAT_ID="7051936083"
 
 # === Bắt đầu cài đặt SOCKS5 ===
-yum update -y
-yum install -y gcc make wget tar firewalld curl
+if [ -f /etc/debian_version ]; then
+  apt update -y
+  apt install -y gcc make wget tar firewalld curl iproute2
+else
+  yum update -y
+  yum install -y gcc make wget tar firewalld curl
+fi
 
 # Cài Dante
 cd /root
@@ -21,11 +26,14 @@ make install
 useradd proxyuser
 echo "proxyuser:proxypass" | chpasswd
 
+# Lấy interface mạng chính (auto)
+EXT_IF=$(ip -o -4 route show to default | awk '{print $5}')
+
 # File cấu hình
 cat > /etc/sockd.conf << EOF
 logoutput: /var/log/sockd.log
-internal: eth0 port = 1080
-external: eth0
+internal: 0.0.0.0 port = 1080
+external: $EXT_IF
 method: username
 user.notprivileged: nobody
 
@@ -62,9 +70,13 @@ systemctl daemon-reload
 systemctl enable sockd
 systemctl start sockd
 
-systemctl start firewalld
-firewall-cmd --permanent --add-port=1080/tcp
-firewall-cmd --reload
+if command -v firewall-cmd >/dev/null 2>&1; then
+  systemctl start firewalld
+  firewall-cmd --permanent --add-port=1080/tcp
+  firewall-cmd --reload
+else
+  iptables -I INPUT -p tcp --dport 1080 -j ACCEPT
+fi
 
 # Lấy IP public
 IP=$(curl -s ifconfig.me)
